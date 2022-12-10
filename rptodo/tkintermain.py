@@ -1,8 +1,8 @@
 #########################
-#  Application Cacul-Energie
+#  Application Calcul-Energie
 # 
 # v0.1 - partie Graphique
-# William PETERS
+# William P
 # 29/11/2022
 ########################
 
