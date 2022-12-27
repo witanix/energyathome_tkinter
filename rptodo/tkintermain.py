@@ -1,7 +1,7 @@
 #########################
 #  Application Calcul-Energie
 # 
-# v0.1 - partie Graphique
+# v0.3 - Nouvelle fenetre de menu
 # William P
 # 29/11/2022
 ########################
@@ -14,12 +14,12 @@ from urllib import request
 import sqlite3
 import os
 from datetime import date
-from tkcalendar import Calendar, DateEntry
+from tkcalendar import DateEntry
 
 ### INSTANCIATION ET VARIABLES
 fen_princ = Tk()
-fen_princ.geometry("640x350")  
-fen_princ.title("Essaie app GUI")
+fen_princ.geometry("640x350")
+fen_princ.title("Calcul Consommation")
 databasefile = "test_bddenergie.db"
 vc1 = StringVar()
 
@@ -91,7 +91,32 @@ def getenergieslist():
     conn.close()
     return energiesdictionnary
 
+def windowmetter():
+    newwindow = Toplevel(fen_princ)
+    newwindow.title=("Gérer compteur")
+    newwindow.geometry("600x300")
+    metterlabel = Label(newwindow,text = "Créer un compteur d'énergie")
+    metterNamelabel = Label(newwindow,text = "Nom compteur: ")
+    metterCommentlabel = Label(newwindow,text = "Description compteur: ")
+     
+    mettercreateubtton = Button(newwindow, text = "Créer",command = newwindow.destroy)
+    mettermanagerquitbutton = Button(newwindow, text = "Exit",command = newwindow.destroy)
+    metterNameEntry = Entry(newwindow,textvariable='mettername', width=50)
+    metterCommentEntry = Entry(newwindow,textvariable='mettername', width=50)
 
+
+    # Affichage des widget de la fenêtre windowsmetter (paramétrage des compteurs d'énergie)
+    
+    metterlabel.grid(column=1, row= 0)
+    metterNamelabel.grid(column=0,row=2)
+    metterNameEntry.grid(column=1, row= 2)
+    metterCommentlabel.grid(column=0, row= 3)
+    metterCommentEntry.grid(column=1, row= 3)
+    mettercreateubtton.grid(column=0, row= 6)
+    mettermanagerquitbutton.grid(column=1, row= 6)
+    
+
+    newwindow.mainloop()
 
 ### FIN Fonction ## 
 
@@ -113,6 +138,9 @@ menuBarre=Menu(fen_princ)
 menuFichier = Menu(menuBarre, tearoff= 0)
 menuEdition = Menu(menuBarre, tearoff= 0)
 menuParameter = Menu(menuBarre, tearoff= 0)
+menuParameter.add_cascade(label="fournisseur")
+menuParameter.add_cascade(label="compteur", command=windowmetter )
+menuParameter.add_cascade(label="contrat")
 menuApropos = Menu(menuBarre, tearoff= 0)
 #Ajout menu principaux
 menuBarre.add_cascade(label="Fichier", menu= menuFichier)
@@ -123,10 +151,12 @@ menuBarre.add_cascade(label="A propos",menu = menuApropos)
 # Ajout de commande au menu principal
 menuFichier.add_command(label="Ouvrir", command=file_new)
 menuFichier.add_command(label="Quitter", command= quit)
+menuFichier.add_command(label="Compteur", command= quit)
 
-menuEdition.add_command(label="Compteur")
-menuEdition.add_command(label="Fournisseur")
-menuEdition.add_command(label="Résidence")
+
+#menuEdition.add_command(label="Compteur")
+#menuEdition.add_command(label="Fournisseur")
+#menuEdition.add_command(label="Résidence")
 
 menuApropos.add_command(label="about ")
 menuApropos.add_command(label="?")
@@ -169,10 +199,9 @@ buttonconsommation.grid(column=5, row=1)
 energieslistoption.grid(column=6, row= 5)
 buttondate.grid(column=0, row = 1)
 
+
 #print(buttondate.get_date())
 ## FIN de GRILLE
-
-
 
 
 
