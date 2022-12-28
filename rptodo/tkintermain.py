@@ -9,6 +9,8 @@
 from cProfile import label
 from multiprocessing.sharedctypes import Value
 from tkinter import *
+import tkinter as tk
+from tkinter import ttk
 from tkinter.tix import LabelEntry
 from urllib import request
 import sqlite3
@@ -56,7 +58,36 @@ def databasedelete():
     print("Non implémentée")
 
 def addmettereading():
-    " Cette fonction permet d'ajouter la valeur d'un compteur"
+    #Cette fonction permet d ajouter la valeur d un compteur
+    
+    try:
+        conn = sqlite3.connect(databasefile)
+    except Error as e:
+        print(e)
+    sql = conn.execute('''Select * from COMPTEUR''');
+    rows = sql.fetchall()
+    print('contenu de la variable:',rows)
+    
+    for row in rows:
+        print(row)
+        tree.insert('', 0, 'gallery', text='Applications')
+
+    conn.commit()
+    sql.close()
+    conn.close()    
+
+
+
+def operationrprint():
+    conn = sqlite3.connect(databasefile)
+    sql = ''' SELECT * FROM RELEVE'''
+    cur = conn.cursor()
+    argsselectvalue = (buttondate.get_date(),entryvalue.get(),vc1.get(),energieslistoptionvar.get() )
+    cur.execute(sql,argsselectvalue)
+    conn.commit()
+    conn.close()
+
+
 
 def sayhello():
     print(vc1.get())
@@ -94,28 +125,44 @@ def getenergieslist():
 def windowmetter():
     newwindow = Toplevel(fen_princ)
     newwindow.title=("Gérer compteur")
-    newwindow.geometry("600x300")
+    newwindow.geometry("800x300")
     metterlabel = Label(newwindow,text = "Créer un compteur d'énergie")
     metterNamelabel = Label(newwindow,text = "Nom compteur: ")
     metterCommentlabel = Label(newwindow,text = "Description compteur: ")
      
-    mettercreateubtton = Button(newwindow, text = "Créer",command = newwindow.destroy)
+    mettercreateubtton = Button(newwindow, text = "Créer",command = addmettereading)
     mettermanagerquitbutton = Button(newwindow, text = "Exit",command = newwindow.destroy)
     metterNameEntry = Entry(newwindow,textvariable='mettername', width=50)
     metterCommentEntry = Entry(newwindow,textvariable='mettername', width=50)
 
-
-    # Affichage des widget de la fenêtre windowsmetter (paramétrage des compteurs d'énergie)
-    
-    metterlabel.grid(column=1, row= 0)
-    metterNamelabel.grid(column=0,row=2)
-    metterNameEntry.grid(column=1, row= 2)
-    metterCommentlabel.grid(column=0, row= 3)
-    metterCommentEntry.grid(column=1, row= 3)
+    # Affichage des widget de la fenêtre windowsmetter (paramétrage des compteurs d'énergie)    
+    metterlabel.grid(column=0, row= 0)
+    metterNamelabel.grid(column=0,row=1)
+    metterNameEntry.grid(column=1, row= 1)
+    metterCommentlabel.grid(column=0, row= 2)
+    metterCommentEntry.grid(column=1, row= 2)
     mettercreateubtton.grid(column=0, row= 6)
-    mettermanagerquitbutton.grid(column=1, row= 6)
+    mettermanagerquitbutton.grid(column=1, row= 7)
     
+    tree = ttk.Treeview(newwindow, column=("Num","Commentaire","Nom"), show='headings',selectmode ='browse')
+    tree.column("#1", anchor=tk.CENTER)
+    tree.heading("#1", text="Num")
+    tree.column("#2", anchor=tk.CENTER)
+    tree.heading("#2", text="Nom")
+    tree.column("#3", anchor=tk.CENTER)
+    tree.heading("#3", text="Commentaire")
+    
+    conn = sqlite3.connect(databasefile)
+    sql = conn.execute("SELECT * FROM COMPTEUR");
+    rows = sql.fetchall()
 
+    for row in rows:
+        print(row)
+        tree.insert("",'end',values=(row[0],row[1],row[2]))
+
+    sql.close()
+    conn.close()    
+    tree.grid(column=0, row=10)
     newwindow.mainloop()
 
 ### FIN Fonction ## 
@@ -151,7 +198,6 @@ menuBarre.add_cascade(label="A propos",menu = menuApropos)
 # Ajout de commande au menu principal
 menuFichier.add_command(label="Ouvrir", command=file_new)
 menuFichier.add_command(label="Quitter", command= quit)
-menuFichier.add_command(label="Compteur", command= quit)
 
 
 #menuEdition.add_command(label="Compteur")
