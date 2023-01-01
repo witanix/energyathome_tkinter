@@ -22,7 +22,7 @@ from tkcalendar import DateEntry
 fen_princ = Tk()
 fen_princ.geometry("640x350")
 fen_princ.title("Calcul Consommation")
-databasefile = "test_bddenergie.db"
+databasefile = "bddenergie.db"
 vc1 = StringVar()
 
 ### FIN INSTANCIATION ET VARIABLES
@@ -36,7 +36,7 @@ def databaseconnection(databasefile):
     else:
         print(resultfile, "Base de données existante")
         conn = sqlite3.connect(databasefile)
-        return True
+    return conn
 
 def databaseinsert():
     conn = sqlite3.connect(databasefile)
@@ -57,23 +57,15 @@ def databasemodify():
 def databasedelete():
     print("Non implémentée")
 
-def addmettereading():
+def addmettereading(metterNameEntry,metterCommentEntry):
     #Cette fonction permet d ajouter la valeur d un compteur
-    
-    try:
-        conn = sqlite3.connect(databasefile)
-    except Error as e:
-        print(e)
-    sql = conn.execute('''Select * from COMPTEUR''');
-    rows = sql.fetchall()
-    print('contenu de la variable:',rows)
-    
-    for row in rows:
-        print(row)
-        tree.insert('', 0, 'gallery', text='Applications')
+    conn = sqlite3.connect(databasefile)
+    c = conn.cursor()
+    datainsert = (metterNameEntry.get(),metterCommentEntry.get() )
+    c.execute("Insert into COMPTEUR(Nom,commentaire) VALUES(?,?)", datainsert)
 
     conn.commit()
-    sql.close()
+    c.close()
     conn.close()    
 
 
@@ -130,10 +122,10 @@ def windowmetter():
     metterNamelabel = Label(newwindow,text = "Nom compteur: ")
     metterCommentlabel = Label(newwindow,text = "Description compteur: ")
      
-    mettercreateubtton = Button(newwindow, text = "Créer",command = addmettereading)
+    mettercreateubtton = Button(newwindow, text = "Créer",command=lambda: addmettereading(metterNameEntry,metterCommentEntry) )
     mettermanagerquitbutton = Button(newwindow, text = "Exit",command = newwindow.destroy)
     metterNameEntry = Entry(newwindow,textvariable='mettername', width=50)
-    metterCommentEntry = Entry(newwindow,textvariable='mettername', width=50)
+    metterCommentEntry = Entry(newwindow,textvariable='mettercomment', width=50)
 
     # Affichage des widget de la fenêtre windowsmetter (paramétrage des compteurs d'énergie)    
     metterlabel.grid(column=0, row= 0)
@@ -144,13 +136,15 @@ def windowmetter():
     mettercreateubtton.grid(column=0, row= 6)
     mettermanagerquitbutton.grid(column=1, row= 7)
     
-    tree = ttk.Treeview(newwindow, column=("Num","Commentaire","Nom"), show='headings',selectmode ='browse')
+    tree = ttk.Treeview(newwindow, column=("Num","Commentaire","Nom","Logement"), show='headings',selectmode ='browse')
     tree.column("#1", anchor=tk.CENTER)
     tree.heading("#1", text="Num")
     tree.column("#2", anchor=tk.CENTER)
-    tree.heading("#2", text="Nom")
+    tree.heading("#2", text="NOM")
     tree.column("#3", anchor=tk.CENTER)
-    tree.heading("#3", text="Commentaire")
+    tree.heading("#3", text="COMMENTAIRE")
+    tree.column("#4", anchor=tk.CENTER)
+    tree.heading("#4", text="LOGEMENT")
     
     conn = sqlite3.connect(databasefile)
     sql = conn.execute("SELECT * FROM COMPTEUR");
@@ -158,13 +152,14 @@ def windowmetter():
 
     for row in rows:
         print(row)
-        tree.insert("",'end',values=(row[0],row[1],row[2]))
+        tree.insert("",'end',values=(row[0],row[1]))
 
     sql.close()
     conn.close()    
     tree.grid(column=0, row=10)
     newwindow.mainloop()
 
+    return metterNameEntry, metterCommentEntry
 ### FIN Fonction ## 
 
 
@@ -230,11 +225,11 @@ buttonadd = Button(fen_princ, text ="Ajouter", command=databaseinsert)
 buttondate = DateEntry(fen_princ, text = "Sélectionner date")
 buttonproduction = Radiobutton(fen_princ, text="Production", value="Production",command=sayhello, variable= vc1)
 buttonconsommation = Radiobutton(fen_princ, text="Consommation", value="Consommation", command=sayhello,variable= vc1)
-energiesdictionnary = getenergieslist()
+#energiesdictionnary = getenergieslist() Pas d'énergie à choisir
 
 energieslistoptionvar = StringVar()
-energieslistoptionvar.set(energiesdictionnary[0])
-energieslistoption = OptionMenu(fen_princ,energieslistoptionvar,*energiesdictionnary )
+#energieslistoptionvar.set(energiesdictionnary[0])
+#energieslistoption = OptionMenu(fen_princ,energieslistoptionvar,*energiesdictionnary )
 
 labelpanel1.grid(column=0, row=0, pady=5)
 labelernergy.grid(column=0, row=2)
@@ -242,7 +237,7 @@ entryvalue.grid(column=0, row= 3)
 buttonadd.grid(column=5, row=6, pady=5)
 buttonproduction.grid(column=4, row=1)
 buttonconsommation.grid(column=5, row=1)
-energieslistoption.grid(column=6, row= 5)
+#energieslistoption.grid(column=6, row= 5)
 buttondate.grid(column=0, row = 1)
 
 
